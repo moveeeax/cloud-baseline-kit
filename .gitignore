@@ -1,0 +1,35 @@
+# Terraform working directory and downloaded modules/providers
+.terraform/
+.terraform.tfstate.lock.info
+
+# State. Never commit it: it contains every value the providers returned,
+# including ones that are secret in practice.
+*.tfstate
+*.tfstate.*
+terraform.tfstate.d/
+
+# Real inputs. Only terraform.tfvars.example belongs in git.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Plan artefacts
+*.tfplan
+plan.out
+plan.json
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Credentials that have no business being in a repo
+.env
+*.pem
+*.p12
+credentials
+
+# Editors and OS noise
+.idea/
+.vscode/
+*.swp
+.DS_Store
