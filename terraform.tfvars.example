@@ -1,0 +1,19 @@
+# Copy to terraform.tfvars and edit. Everything else has a defensible default.
+# Bucket names are globally unique across all of AWS, so pick something that
+# includes the company and the region.
+
+aws_region            = "eu-central-1"
+org_name              = "acme"
+environment           = "prod"
+owner                 = "platform-team"
+audit_log_bucket_name = "acme-prod-audit-logs-eu-central-1"
+
+vpc_cidr_block          = "10.20.0.0/16"
+availability_zone_count = 2
+
+monthly_budget_usd  = 500
+budget_alert_emails = ["cloud-alerts@example.com"]
+
+# Set to false if this account already belongs to an AWS Organization.
+create_organization  = true
+organizational_units = ["Security", "Workloads"]
