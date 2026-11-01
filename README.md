@@ -30,8 +30,8 @@ before you assume it does something.
 | Organization | Optional AWS Organization with all features, SCPs and tag policies enabled, and the OUs you name |
 | Cost | Monthly budget alerting at 80% actual and 100% forecast, to email and to an SNS topic Chatbot can turn into Slack messages |
 
-Composed from these modules, each pinned to a release tag or to a commit on its
-`main` branch (see the `source` lines in [`main.tf`](main.tf) and
+Composed from these modules, each pinned to a full commit SHA on its `main`
+branch (see the `source` lines in [`main.tf`](main.tf) and
 [`network.tf`](network.tf)):
 [`terraform-aws-baseline`](https://github.com/moveeeax/terraform-aws-baseline),
 [`terraform-aws-organizations`](https://github.com/moveeeax/terraform-aws-organizations),

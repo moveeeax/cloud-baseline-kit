@@ -4,7 +4,7 @@
 ###############################################################################
 
 module "baseline" {
-  source = "git::https://github.com/moveeeax/terraform-aws-baseline.git?ref=v1.0.0"
+  source = "git::https://github.com/moveeeax/terraform-aws-baseline.git?ref=72a669b35587b0b8044303e9c9c3788c20be2958"
 
   log_bucket_name               = local.general_log_bucket_name
   log_bucket_versioning_enabled = true
@@ -35,7 +35,7 @@ module "baseline" {
 ###############################################################################
 
 module "organization" {
-  source = "git::https://github.com/moveeeax/terraform-aws-organizations.git?ref=v1.0.0"
+  source = "git::https://github.com/moveeeax/terraform-aws-organizations.git?ref=2e776336a37f0217727411bf8aec54a840890a3d"
 
   count = var.create_organization ? 1 : 0
 
@@ -63,7 +63,7 @@ module "organization" {
 ###############################################################################
 
 module "break_glass_role" {
-  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=v1.0.0"
+  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=672f4a2bfcacf5825987195ef5991ed3c99c9aeb"
 
   name                 = "${local.name_prefix}-break-glass"
   description          = "Emergency administrator access. MFA required, sessions capped, every use audited."
@@ -116,7 +116,7 @@ resource "aws_iam_policy" "config_delivery" {
 }
 
 module "config_role" {
-  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=v1.0.0"
+  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=672f4a2bfcacf5825987195ef5991ed3c99c9aeb"
 
   count = var.enable_config ? 1 : 0
 
@@ -188,7 +188,7 @@ resource "aws_config_config_rule" "conformance" {
 ###############################################################################
 
 module "guardduty" {
-  source = "git::https://github.com/moveeeax/terraform-aws-guardduty.git?ref=v1.0.0"
+  source = "git::https://github.com/moveeeax/terraform-aws-guardduty.git?ref=768e5d6f897510972954990de4fe597b7bd150e7"
 
   enable                       = var.enable_guardduty
   finding_publishing_frequency = "FIFTEEN_MINUTES"

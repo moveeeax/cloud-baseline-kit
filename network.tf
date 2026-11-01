@@ -148,7 +148,7 @@ resource "aws_vpc_endpoint" "s3" {
 ###############################################################################
 
 module "workload_security_group" {
-  source = "git::https://github.com/moveeeax/terraform-aws-security-group.git?ref=v1.0.0"
+  source = "git::https://github.com/moveeeax/terraform-aws-security-group.git?ref=4382f39b8d3ab3182507a05646befed5f309c804"
 
   name        = "${local.name_prefix}-workload"
   description = "Baseline workload security group: no ingress, unrestricted egress."
