@@ -178,3 +178,7 @@ The module composes, validates, lints and passes its test suite. It has **not
 yet been applied to a live AWS account** — that is the next milestone, and until
 two clean apply/destroy cycles have happened it should be treated as unproven
 against the real AWS APIs.
+
+## License
+
+MIT, see [`LICENSE`](LICENSE).
