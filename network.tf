@@ -8,7 +8,7 @@
 ###############################################################################
 
 module "vpc" {
-  source = "git::https://github.com/moveeeax/terraform-aws-vpc.git?ref=fb1db2b82a32b807005de9f82fb15bd2da30dbee"
+  source = "git::https://github.com/moveeeax/terraform-aws-vpc.git?ref=5bc9fa9e06f624b573e898893891a7fee05d27a2"
 
   name       = "${local.name_prefix}-vpc"
   cidr_block = var.vpc_cidr_block
@@ -148,7 +148,7 @@ resource "aws_vpc_endpoint" "s3" {
 ###############################################################################
 
 module "workload_security_group" {
-  source = "git::https://github.com/moveeeax/terraform-aws-security-group.git?ref=2324d2b02b65135e76a759d9f88bc5cdb73261da"
+  source = "git::https://github.com/moveeeax/terraform-aws-security-group.git?ref=4382f39b8d3ab3182507a05646befed5f309c804"
 
   name        = "${local.name_prefix}-workload"
   description = "Baseline workload security group: no ingress, unrestricted egress."
