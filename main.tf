@@ -4,7 +4,7 @@
 ###############################################################################
 
 module "baseline" {
-  source = "git::https://github.com/moveeeax/terraform-aws-baseline.git?ref=33265c6cccb4745c6d70a69350a550ba38912b77"
+  source = "git::https://github.com/moveeeax/terraform-aws-baseline.git?ref=v1.0.0"
 
   log_bucket_name               = local.general_log_bucket_name
   log_bucket_versioning_enabled = true
@@ -35,7 +35,7 @@ module "baseline" {
 ###############################################################################
 
 module "organization" {
-  source = "git::https://github.com/moveeeax/terraform-aws-organizations.git?ref=22ce8fa333a2f371ef2857398ed8855eb8bf1b9b"
+  source = "git::https://github.com/moveeeax/terraform-aws-organizations.git?ref=v1.0.0"
 
   count = var.create_organization ? 1 : 0
 
@@ -63,7 +63,7 @@ module "organization" {
 ###############################################################################
 
 module "break_glass_role" {
-  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=d2fee3afbc2cb5e1d5075c8d96caa7e39d8bfb9e"
+  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=v1.0.0"
 
   name                 = "${local.name_prefix}-break-glass"
   description          = "Emergency administrator access. MFA required, sessions capped, every use audited."
@@ -116,7 +116,7 @@ resource "aws_iam_policy" "config_delivery" {
 }
 
 module "config_role" {
-  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=d2fee3afbc2cb5e1d5075c8d96caa7e39d8bfb9e"
+  source = "git::https://github.com/moveeeax/terraform-aws-iam.git?ref=v1.0.0"
 
   count = var.enable_config ? 1 : 0
 
@@ -150,7 +150,7 @@ module "config_role" {
 }
 
 module "config" {
-  source = "git::https://github.com/moveeeax/terraform-aws-config.git?ref=b4838d40d7c0307e47e89e4d3799815e62c91943"
+  source = "git::https://github.com/moveeeax/terraform-aws-config.git?ref=3afb0815c9db5eb28983b690b91ca4afdcbc5268"
 
   count = var.enable_config ? 1 : 0
 
@@ -188,7 +188,7 @@ resource "aws_config_config_rule" "conformance" {
 ###############################################################################
 
 module "guardduty" {
-  source = "git::https://github.com/moveeeax/terraform-aws-guardduty.git?ref=2ea4883ad4b674ed4012abef2fb30aad17339d93"
+  source = "git::https://github.com/moveeeax/terraform-aws-guardduty.git?ref=v1.0.0"
 
   enable                       = var.enable_guardduty
   finding_publishing_frequency = "FIFTEEN_MINUTES"
