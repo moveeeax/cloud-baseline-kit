@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
-          terraform_version: "1.15.8"
+          terraform_version: "1.17.1"
           terraform_wrapper: false
 
       - name: terraform fmt
@@ -38,9 +38,9 @@ jobs:
       - name: terraform validate
         run: terraform validate -no-color
 
-      - uses: terraform-linters/setup-tflint@v4
+      - uses: terraform-linters/setup-tflint@v6
         with:
-          tflint_version: v0.64.0
+          tflint_version: v0.65.0
 
       - name: tflint
         run: |
