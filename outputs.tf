@@ -61,6 +61,11 @@ output "config_rule_names" {
   value       = sort([for rule in aws_config_config_rule.conformance : rule.name])
 }
 
+output "security_alerts_topic_arn" {
+  description = "SNS topic carrying GuardDuty findings, root sign-ins and break-glass assumptions, or null when both GuardDuty and privileged-access alerts are off. Subscribe AWS Chatbot to it to deliver them into Slack."
+  value       = one(aws_sns_topic.security_alerts[*].arn)
+}
+
 ###############################################################################
 # Access
 ###############################################################################

@@ -7,8 +7,11 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.40, < 7.0"
+      source = "hashicorp/aws"
+      # 6.0 added the per-resource `region` argument, which the security alert
+      # forwarding rules use to sit in us-east-1, us-east-2 and us-west-2 without
+      # a provider alias per region.
+      version = ">= 6.0, < 7.0"
     }
   }
 }

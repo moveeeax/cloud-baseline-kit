@@ -120,6 +120,34 @@ to look at.
 attacker rather than a misconfiguration: credential use from an unusual
 location, communication with known-bad infrastructure, cryptomining behaviour.
 
+### `<org>-<environment>-security-alerts` — SNS topic and alert rules
+
+An SNS topic, encrypted with its own customer-managed KMS key
+(`alias/<org>-<env>-security-alerts`), that only EventBridge in this account may
+publish to. The configured security contacts are subscribed by email, and AWS
+Chatbot can be subscribed to deliver the same alerts into Slack. Three
+EventBridge rules feed it:
+
+- `<org>-<environment>-guardduty-findings`: every GuardDuty finding of severity
+  7 or higher (High and Critical) by default. Low and Medium findings stay in
+  the GuardDuty console.
+- `<org>-<environment>-root-console-login`: every console sign-in by the root
+  user, successful or failed.
+- `<org>-<environment>-break-glass-assume`: every `AssumeRole` call on the
+  break-glass role, successful or denied.
+
+CloudTrail records root sign-ins in us-east-1, us-east-2 or us-west-2, and
+global STS calls in us-east-1, regardless of where the account otherwise runs.
+Rules named `<org>-<environment>-fwd-*` in those regions forward the matching
+events to the home region through the `<org>-<environment>-event-forwarding`
+role, which may put events onto the home region's default event bus and do
+nothing else.
+
+**Why it matters.** Detection that nobody is told about is an entry in a
+console that someone may open next month. The root user should essentially
+never sign in, and the break-glass role exists for incidents, so each of those
+events is worth a human looking at the same day.
+
 ---
 
 ## 4. Identity
@@ -138,8 +166,8 @@ same window.
 
 **Why it matters.** Nobody should hold standing administrator rights. This role
 is how you get them when something is genuinely broken, and every use of it
-lands in CloudTrail with a name attached. An account where three people have
-permanent admin has no such record.
+lands in CloudTrail with a name attached and raises a security alert. An
+account where three people have permanent admin has no such record.
 
 ### `<org>-<environment>-config` — IAM role
 
@@ -272,7 +300,7 @@ Approximate, `eu-central-1`, an account with no workloads yet:
 | GuardDuty | a few dollars on an empty account; scales with CloudTrail and S3 event volume |
 | CloudTrail (first trail, management events) | free |
 | S3 storage for logs | cents at first |
-| KMS key | $1 per key per month plus request charges |
+| KMS keys (audit logs, security alert topic) | $1 per key per month plus request charges |
 | VPC flow logs to CloudWatch | scales with traffic; near zero on an idle account |
 
 The NAT gateway is the largest single line. Set `enable_nat_gateway = false` if

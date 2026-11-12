@@ -182,6 +182,34 @@ variable "config_managed_rules" {
   }
 }
 
+variable "guardduty_alert_min_severity" {
+  description = "Lowest GuardDuty finding severity sent to the security alert topic. GuardDuty rates findings 7.0-8.9 High and 9.0-10.0 Critical, so the default of 7 alerts on High and Critical and leaves Low and Medium in the console."
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.guardduty_alert_min_severity >= 1 && var.guardduty_alert_min_severity <= 10
+    error_message = "guardduty_alert_min_severity must be between 1 and 10, the range GuardDuty assigns."
+  }
+}
+
+variable "alert_on_privileged_access" {
+  description = "Whether root user console sign-ins and AssumeRole calls on the break-glass role are sent to the security alert topic."
+  type        = bool
+  default     = true
+}
+
+variable "security_alert_emails" {
+  description = "Email addresses subscribed to the security alert topic. Empty means the budget_alert_emails addresses. AWS sends each address a subscription confirmation, and nothing is delivered to it until that is clicked."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for address in var.security_alert_emails : can(regex("^[^@[:space:]]+@[^@[:space:]]+\\.[^@[:space:]]+$", address))])
+    error_message = "Every entry in security_alert_emails must look like an email address."
+  }
+}
+
 ###############################################################################
 # Access
 ###############################################################################
