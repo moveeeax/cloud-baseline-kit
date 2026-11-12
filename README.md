@@ -3,7 +3,8 @@
 A day-one AWS account, as one Terraform root module and one `terraform apply`.
 
 CloudTrail into an encrypted, object-locked log bucket. AWS Config with a small
-conformance set. GuardDuty. An IAM password policy and an MFA-gated break-glass
+conformance set. GuardDuty, with findings, root sign-ins and break-glass use
+sent to email and Slack. An IAM password policy and an MFA-gated break-glass
 role. A two-tier VPC. A budget that tells you before the money is gone. Every
 resource tagged and named the same way.
 
@@ -25,6 +26,7 @@ before you assume it does something.
 | Audit | Multi-region CloudTrail with log file validation, delivered to an S3 bucket with COMPLIANCE-mode object lock and a customer-managed KMS key |
 | Configuration | AWS Config recorder and delivery channel, plus 14 managed rules chosen to answer real questionnaire questions |
 | Detection | GuardDuty with S3, RDS and Lambda protection |
+| Alerting | GuardDuty findings of severity 7 and up, root console sign-ins and break-glass role assumptions, sent to email and to an encrypted SNS topic Chatbot can turn into Slack messages |
 | Identity | 14-character password policy with rotation and reuse prevention, MFA-gated break-glass admin role, account-wide S3 public access block, EBS encryption by default |
 | Network | Two-tier VPC across two AZs, emptied default security group, flow logs, S3 gateway endpoint, one shared NAT gateway |
 | Organization | Optional AWS Organization with all features, SCPs and tag policies enabled, and the OUs you name |
@@ -44,15 +46,16 @@ branch (see the `source` lines in [`main.tf`](main.tf) and
 ## Requirements
 
 - Terraform >= 1.7 (the test suite uses `mock_provider`)
-- AWS provider >= 5.40, < 7.0
+- AWS provider >= 6.0, < 7.0 (the alert forwarding rules use the per-resource
+  `region` argument added in 6.0)
 - An AWS account, and credentials for it, **only when you get to `apply`**
 
 ## Try it without an AWS account
 
 This runs end to end on a laptop with no AWS credentials configured. It
 downloads the child modules from GitHub and the AWS provider from the registry,
-then plans the whole baseline against a mocked provider and checks 26
-assertions about what it produced.
+then plans the whole baseline against a mocked provider and runs 38 tests
+against what it produced.
 
 ```console
 $ git clone https://github.com/moveeeax/cloud-baseline-kit.git
@@ -84,12 +87,16 @@ tests/network.tftest.hcl... in progress
   run "private_tier_has_no_egress_path_when_nat_is_disabled"... pass
   run "names_carry_the_account_prefix_and_the_zone"... pass
 tests/network.tftest.hcl... pass
+tests/security_alerts.tftest.hcl... in progress
+  run "guardduty_findings_reach_the_alert_topic"... pass
+  ...
+tests/security_alerts.tftest.hcl... pass
 tests/validation.tftest.hcl... in progress
   run "rejects_a_region_that_is_not_a_region"... pass
   ...
 tests/validation.tftest.hcl... pass
 
-Success! 26 passed, 0 failed.
+Success! 38 passed, 0 failed.
 ```
 
 Nothing above talks to AWS, costs anything, or needs a credential.
@@ -142,6 +149,9 @@ whatever already manages state for you.
   or bypassed afterwards — not by an administrator, not by the account root.
   `terraform destroy` will not be able to empty that bucket until the retention
   period expires. That is the entire point of it, but know it going in.
+- **Confirm the alert subscriptions.** Every address in `security_alert_emails`
+  (or `budget_alert_emails`, when the former is empty) gets an SNS
+  confirmation email. Until it is clicked, nothing reaches that address.
 - **The NAT gateway is the expensive line**, roughly $32/month before data
   charges. Set `enable_nat_gateway = false` if nothing in the private tier needs
   outbound access yet.
@@ -150,8 +160,31 @@ whatever already manages state for you.
 
 `terraform output` gives you the VPC and subnet IDs, both bucket names, the KMS
 key ARN, the CloudTrail ARN, the GuardDuty detector, the Config rule names, the
-break-glass role ARN and its trust policy, and the budget SNS topic ARN to point
-AWS Chatbot at.
+break-glass role ARN and its trust policy, and the budget and security alert SNS
+topic ARNs to point AWS Chatbot at.
+
+## Security alerts
+
+| Alert | Source | Toggle |
+| --- | --- | --- |
+| GuardDuty finding at or above `guardduty_alert_min_severity` (default 7, High and Critical) | GuardDuty | `enable_guardduty` |
+| Root user console sign-in, successful or failed | CloudTrail | `alert_on_privileged_access` |
+| `AssumeRole` on the break-glass role, successful or denied | CloudTrail | `alert_on_privileged_access` |
+
+All three go to the `<org>-<environment>-security-alerts` SNS topic, encrypted
+with its own KMS key, with `security_alert_emails` subscribed (empty means the
+`budget_alert_emails` addresses). Messages use the AWS Chatbot custom
+notification format, so a Chatbot channel subscribed to
+`security_alerts_topic_arn` renders them; email subscribers receive the same
+JSON with a one-line description inside.
+
+CloudTrail records root console sign-ins in us-east-1, us-east-2 or us-west-2,
+and calls to the global STS endpoint in us-east-1, whatever the home region is.
+EventBridge only sees an event in the region where it was recorded, so the kit
+puts forwarding rules in those regions that send the matching events to the
+home region's default event bus. One gap remains: an `AssumeRole` sent to a
+regional STS endpoint of a region other than the home region and us-east-1 is
+recorded by CloudTrail but does not alert.
 
 ## Development
 

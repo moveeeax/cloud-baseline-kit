@@ -132,6 +132,26 @@ run "rejects_duplicate_config_rules" {
   expect_failures = [var.config_managed_rules]
 }
 
+run "rejects_a_guardduty_severity_outside_the_scale" {
+  command = plan
+
+  variables {
+    guardduty_alert_min_severity = 11
+  }
+
+  expect_failures = [var.guardduty_alert_min_severity]
+}
+
+run "rejects_a_malformed_security_alert_address" {
+  command = plan
+
+  variables {
+    security_alert_emails = ["security-at-example.com"]
+  }
+
+  expect_failures = [var.security_alert_emails]
+}
+
 run "accepts_the_documented_example_inputs" {
   command = plan
 
